@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Play, Star, Clock, Bookmark, BookmarkCheck, ArrowLeft, Film, Tv, Info, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Play, Star, Clock, Bookmark, BookmarkCheck, ArrowLeft, Film, Tv, Info, ChevronLeft, ChevronRight, Loader2, Check, X } from 'lucide-react'
 
 export default function App() {
   const [view, setView] = useState('browse')
@@ -29,9 +29,27 @@ export default function App() {
   const [heroIndex, setHeroIndex] = useState(0)
   const [heroDetails, setHeroDetails] = useState<any[]>([])
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  
+  // Loading states
+  const [isLoadingContent, setIsLoadingContent] = useState(false)
+  const [loadingMessage, setLoadingMessage] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const [toast, setToast] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null)
 
   const [heroTransition, setHeroTransition] = useState(true)
   const HERO_SLIDE_COUNT = 5
+
+  // Toast notification effect
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type })
+  }
 
   useEffect(() => {
     if (trending.length <= HERO_SLIDE_COUNT) return;
@@ -179,39 +197,65 @@ export default function App() {
   async function handleSearch(query: string) {
     if (query.trim().length < 2) {
       setSearchResults([])
+      setIsSearching(false)
       return
     }
 
-    const res = await fetch(`/api/tmdb/search/multi?query=${encodeURIComponent(query)}`)
-    const data = await res.json()
-    setSearchResults(data.results || [])
+    setIsSearching(true)
+    try {
+      const res = await fetch(`/api/tmdb/search/multi?query=${encodeURIComponent(query)}`)
+      const data = await res.json()
+      setSearchResults(data.results || [])
+    } catch (error) {
+      console.error('Search error:', error)
+      showToast('Failed to search. Please try again.', 'error')
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   async function startWatching(media: any) {
-    const type = media.media_type || (media.first_air_date ? 'tv' : 'movie')
-    const res = await fetch(`/api/tmdb/${type}/${media.id}?append_to_response=credits,similar,images&include_image_language=en,null`)
-    const fullDetails = await res.json()
+    setIsLoadingContent(true)
+    setLoadingMessage('Loading content...')
+    
+    try {
+      const type = media.media_type || (media.first_air_date ? 'tv' : 'movie')
+      const res = await fetch(`/api/tmdb/${type}/${media.id}?append_to_response=credits,similar,images&include_image_language=en,null`)
+      
+      if (!res.ok) throw new Error('Failed to fetch content details')
+      
+      const fullDetails = await res.json()
 
-    fullDetails.media_type = type
-    setSelectedMedia(fullDetails)
+      fullDetails.media_type = type
+      setSelectedMedia(fullDetails)
 
-    if (type === 'tv') {
-      setSeasons(fullDetails.seasons || [])
+      if (type === 'tv') {
+        setLoadingMessage('Loading episodes...')
+        setSeasons(fullDetails.seasons || [])
 
-      const historyItem = watchHistory.find((h: any) => h.id === media.id && h.media_type === 'tv')
-      if (historyItem) {
-        setCurrentSeason(historyItem.season)
-        setCurrentEpisode(historyItem.episode)
-        await loadSeasonEpisodes(media.id, historyItem.season)
-      } else {
-        setCurrentSeason(1)
-        setCurrentEpisode(1)
-        await loadSeasonEpisodes(media.id, 1)
+        const historyItem = watchHistory.find((h: any) => h.id === media.id && h.media_type === 'tv')
+        if (historyItem) {
+          setCurrentSeason(historyItem.season)
+          setCurrentEpisode(historyItem.episode)
+          await loadSeasonEpisodes(media.id, historyItem.season)
+        } else {
+          setCurrentSeason(1)
+          setCurrentEpisode(1)
+          await loadSeasonEpisodes(media.id, 1)
+        }
       }
-    }
 
-    setView('watch')
-    setPlayerKey(prev => prev + 1)
+      setLoadingMessage('Starting player...')
+      setView('watch')
+      setPlayerKey(prev => prev + 1)
+      showToast('Content loaded successfully!', 'success')
+    } catch (error) {
+      console.error('Error loading content:', error)
+      showToast('Failed to load content. Please try again.', 'error')
+    } finally {
+      setIsLoadingContent(false)
+      setLoadingMessage('')
+    }
   }
 
   async function loadSeasonEpisodes(tvId: number, seasonNumber: number) {
@@ -236,6 +280,7 @@ export default function App() {
     const isBookmarked = bookmarks.some((b: any) => b.id === media.id)
     if (isBookmarked) {
       setBookmarks(bookmarks.filter((b: any) => b.id !== media.id))
+      showToast('Removed from your list', 'info')
     } else {
       setBookmarks([{
         id: media.id,
@@ -245,6 +290,7 @@ export default function App() {
         vote_average: media.vote_average,
         release_date: media.release_date || media.first_air_date
       }, ...bookmarks])
+      showToast('Added to your list!', 'success')
     }
   }
 
@@ -305,8 +351,9 @@ export default function App() {
     if (isTopTen) {
       return (
         <div
-          className="cursor-pointer group flex-shrink-0 flex items-end w-[200px] sm:w-[240px] md:w-[280px]"
+          className="cursor-pointer group flex-shrink-0 flex items-end w-[200px] sm:w-[240px] md:w-[280px] transition-transform hover:scale-105"
           onClick={() => onClick(media)}
+          data-testid={`media-card-${media.id}`}
         >
           <div
             className="z-0 text-[180px] sm:text-[220px] md:text-[260px] font-black leading-none select-none -mr-16 sm:-mr-20 md:-mr-24 -translate-x-10"
@@ -319,13 +366,20 @@ export default function App() {
             {media.topTenNumber}
           </div>
           <div className="relative z-10 w-[150px] sm:w-[180px] md:w-[200px] flex-shrink-0">
-            <div className="relative aspect-[2/3] overflow-hidden rounded bg-zinc-900 shadow-xl">
+            <div className="relative aspect-[2/3] overflow-hidden rounded bg-zinc-900 shadow-xl group-hover:shadow-2xl group-hover:shadow-indigo-500/20 transition-all duration-300">
               {media.poster_path ? (
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
-                  alt={media.title || media.name}
-                  className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
-                />
+                <>
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
+                    alt={media.title || media.name}
+                    className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <div className="transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                      <Play className="w-16 h-16 text-white drop-shadow-lg" fill="currentColor" />
+                    </div>
+                  </div>
+                </>
               ) : (
                 <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
                   <Film className="w-12 h-12 text-zinc-600" />
@@ -347,16 +401,27 @@ export default function App() {
 
     return (
       <div
-        className="cursor-pointer group flex-shrink-0 w-[150px] sm:w-[180px] md:w-[200px]"
+        className="cursor-pointer group flex-shrink-0 w-[150px] sm:w-[180px] md:w-[200px] transition-transform hover:scale-105"
         onClick={() => onClick(media)}
+        data-testid={`media-card-${media.id}`}
       >
-        <div className="relative aspect-[2/3] overflow-hidden rounded bg-zinc-900 mb-2">
+        <div className="relative aspect-[2/3] overflow-hidden rounded bg-zinc-900 mb-2 shadow-lg group-hover:shadow-xl group-hover:shadow-indigo-500/30 transition-all duration-300">
           {media.poster_path ? (
-            <img
-              src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
-              alt={media.title || media.name}
-              className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
-            />
+            <>
+              <img
+                src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
+                alt={media.title || media.name}
+                className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 border-2 border-white/40">
+                    <Play className="w-10 h-10 text-white drop-shadow-lg" fill="currentColor" />
+                  </div>
+                </div>
+              </div>
+            </>
           ) : (
             <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
               <Film className="w-12 h-12 text-zinc-600" />
@@ -373,7 +438,7 @@ export default function App() {
         </div>
 
         <div className="space-y-0.5">
-          <h3 className="font-medium text-white truncate text-sm">
+          <h3 className="font-medium text-white truncate text-sm group-hover:text-indigo-400 transition-colors">
             {media.title || media.name}
           </h3>
           <div className="flex items-center gap-2 text-zinc-500 text-xs">
@@ -457,9 +522,62 @@ export default function App() {
     )
   }
 
+  // Loading Overlay Component
+  const LoadingOverlay = () => (
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center" data-testid="loading-overlay">
+      <div className="bg-zinc-900 rounded-lg p-8 shadow-2xl border border-zinc-800 max-w-md w-full mx-4">
+        <div className="flex flex-col items-center space-y-6">
+          <div className="relative">
+            <Loader2 className="w-16 h-16 text-indigo-500 animate-spin" />
+            <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl animate-pulse" />
+          </div>
+          <div className="text-center space-y-2">
+            <h3 className="text-xl font-semibold text-white">Please Wait</h3>
+            <p className="text-zinc-400">{loadingMessage || 'Loading...'}</p>
+          </div>
+          <div className="w-full bg-zinc-800 rounded-full h-1 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 animate-pulse" style={{ width: '100%' }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Toast Notification Component
+  const ToastNotification = () => {
+    if (!toast) return null
+    
+    const icons = {
+      success: <Check className="w-5 h-5 text-green-500" />,
+      error: <X className="w-5 h-5 text-red-500" />,
+      info: <Info className="w-5 h-5 text-blue-500" />
+    }
+
+    const bgColors = {
+      success: 'bg-green-500/10 border-green-500/50',
+      error: 'bg-red-500/10 border-red-500/50',
+      info: 'bg-blue-500/10 border-blue-500/50'
+    }
+
+    return (
+      <div className="fixed top-20 right-4 z-[101] animate-in slide-in-from-top duration-300" data-testid="toast-notification">
+        <div className={`${bgColors[toast.type]} border rounded-lg p-4 shadow-2xl backdrop-blur-sm min-w-[300px] flex items-center gap-3`}>
+          {icons[toast.type]}
+          <p className="text-white font-medium flex-1">{toast.message}</p>
+        </div>
+      </div>
+    )
+  }
+
   if (view === 'watch' && selectedMedia) {
     return (
       <div className="min-h-screen bg-black text-white">
+        {/* Loading Overlay for watch view */}
+        {isLoadingContent && <LoadingOverlay />}
+        
+        {/* Toast Notifications */}
+        <ToastNotification />
+        
         <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 to-transparent">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center gap-4">
@@ -468,6 +586,7 @@ export default function App() {
                 size="icon"
                 onClick={() => setView('browse')}
                 className="hover:bg-white/10"
+                data-testid="back-button"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
@@ -484,6 +603,7 @@ export default function App() {
                 size="icon"
                 onClick={() => toggleBookmark(selectedMedia)}
                 className="hover:bg-white/10"
+                data-testid="bookmark-button"
               >
                 {bookmarks.some((b: any) => b.id === selectedMedia.id) ? (
                   <BookmarkCheck className="w-5 h-5 text-white fill-white" />
@@ -745,6 +865,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
+      {/* Loading Overlay */}
+      {isLoadingContent && <LoadingOverlay />}
+      
+      {/* Toast Notifications */}
+      <ToastNotification />
+      
       {activeTab === 'home' && trending.length > 0 && (
         <div className="absolute top-0 left-0 h-screen w-full overflow-hidden z-10">
           <div
@@ -818,8 +944,9 @@ export default function App() {
                       <div className="flex items-center gap-4 pt-4">
                         <Button
                           size="lg"
-                          className="bg-white text-black hover:bg-zinc-200 font-bold px-10 py-6 text-lg rounded-md shadow-2xl transition-all hover:scale-105"
+                          className="bg-white text-black hover:bg-zinc-200 font-bold px-10 py-6 text-lg rounded-md shadow-2xl transition-all hover:scale-105 hover:shadow-indigo-500/50"
                           onClick={() => startWatching(item)}
+                          data-testid="hero-play-button"
                         >
                           <Play className="w-6 h-6 mr-2" fill="currentColor" />
                           Play Now
@@ -827,8 +954,9 @@ export default function App() {
                         <Button
                           size="lg"
                           variant="outline"
-                          className="border-2 border-zinc-400 bg-black/60 backdrop-blur-sm hover:bg-black/80 hover:border-zinc-300 text-white font-bold px-10 py-6 text-lg rounded-md shadow-2xl transition-all hover:scale-105"
+                          className="border-2 border-zinc-400 bg-black/60 backdrop-blur-sm hover:bg-black/80 hover:border-indigo-400 text-white font-bold px-10 py-6 text-lg rounded-md shadow-2xl transition-all hover:scale-105"
                           onClick={() => startWatching(item)}
+                          data-testid="hero-info-button"
                         >
                           <Info className="w-6 h-6 mr-2" />
                           More Info
@@ -853,13 +981,17 @@ export default function App() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
                 <Input
                   placeholder="Search movies, TV shows..."
-                  className="pl-10 bg-zinc-900/80 border-zinc-800 focus:border-zinc-700 rounded-md"
+                  className="pl-10 pr-10 bg-zinc-900/80 border-zinc-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-md transition-all"
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value)
                     handleSearch(e.target.value)
                   }}
+                  data-testid="search-input"
                 />
+                {isSearching && (
+                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500 animate-spin" />
+                )}
               </div>
             </div>
           </div>
@@ -899,13 +1031,27 @@ export default function App() {
 
             <TabsContent value="movies" className="mt-0">
               <div className="container mx-auto py-12 space-y-8">
-                {popularMovies.length > 0 ? <ScrollableRow title="Popular Movies" items={popularMovies} onItemClick={startWatching} /> : <div className="text-center py-20"><p>Loading...</p></div>}
+                {popularMovies.length > 0 ? (
+                  <ScrollableRow title="Popular Movies" items={popularMovies} onItemClick={startWatching} />
+                ) : (
+                  <div className="text-center py-20">
+                    <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mx-auto mb-4" />
+                    <p className="text-zinc-400">Loading movies...</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
             <TabsContent value="tv" className="mt-0">
               <div className="container mx-auto py-12 space-y-8">
-                {popularTV.length > 0 ? <ScrollableRow title="Popular TV Shows" items={popularTV} onItemClick={startWatching} /> : <div className="text-center py-20"><p>Loading...</p></div>}
+                {popularTV.length > 0 ? (
+                  <ScrollableRow title="Popular TV Shows" items={popularTV} onItemClick={startWatching} />
+                ) : (
+                  <div className="text-center py-20">
+                    <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mx-auto mb-4" />
+                    <p className="text-zinc-400">Loading TV shows...</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
