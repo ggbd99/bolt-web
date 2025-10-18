@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Play, Film, X, Bookmark, BookmarkCheck, Tv, Film as MovieIcon } from 'lucide-react';
+import { Play, Film, X, Bookmark, BookmarkCheck, Clock } from 'lucide-react';
 import { MediaItem, BookmarkItem, WatchHistoryItem } from '../App';
 
 interface MediaCardProps {
@@ -13,9 +12,20 @@ interface MediaCardProps {
   bookmarks: BookmarkItem[];
   watchHistory: WatchHistoryItem[];
   toggleBookmark: (media: MediaItem) => void;
+  currentSection?: string; // Add this to know which section we're in
 }
 
-export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, onRemove, showRemove = false, bookmarks, watchHistory, toggleBookmark }) => {
+export const MediaCard: React.FC<MediaCardProps> = ({ 
+  media, 
+  onClick, 
+  onPlay, 
+  onRemove, 
+  showRemove = false, 
+  bookmarks, 
+  watchHistory, 
+  toggleBookmark,
+  currentSection = 'home'
+}) => {
   const isTopTen = media.topTenNumber !== undefined;
   const historyItem = watchHistory.find((item: WatchHistoryItem) => {
     if (media.media_type === 'tv' || media.first_air_date) {
@@ -27,6 +37,24 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
   const hasProgress = historyItem && historyItem.progress && historyItem.duration &&
     (historyItem.progress / historyItem.duration) < 0.95;
   const progressPercent = hasProgress ? (historyItem.progress / historyItem.duration) * 100 : 0;
+
+  // Check if this item is in continue watching
+  const isInContinueWatching = watchHistory.some((item: WatchHistoryItem) => item.id === media.id);
+  
+  // Only show continue watching tag if we're NOT in the continue watching section
+  const shouldShowContinueTag = currentSection !== 'history' && isInContinueWatching;
+
+  // Get the continue watching tag
+  const getContinueWatchingTag = () => {
+    if (!shouldShowContinueTag) return null;
+    
+    return (
+      <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-2 py-1 rounded-md text-xs font-semibold flex items-center gap-1 shadow-lg">
+        <Clock className="w-3 h-3" />
+        Continue
+      </div>
+    );
+  };
 
   if (isTopTen) {
     return (
@@ -46,6 +74,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
         </div>
         <div className="relative z-10 w-[150px] sm:w-[180px] md:w-[200px] flex-shrink-0">
           <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/40 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
+            {getContinueWatchingTag()}
             {media.poster_path ? (
               <>
                 <img
@@ -102,6 +131,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
       onClick={() => onClick(media)}
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 mb-2 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/40 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
+        {getContinueWatchingTag()}
         <div className="absolute top-2 right-2 z-20 flex gap-2">
           {showRemove && onRemove && (
             <Button
@@ -160,23 +190,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
           </div>
         )}
       </div>
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 mb-1">
-          <Badge
-            variant="outline"
-            className={`text-[10px] px-1.5 py-0 h-5 font-semibold border ${
-              (media.media_type === 'tv' || media.first_air_date)
-                ? 'bg-blue-500/20 border-blue-500/50 text-blue-300'
-                : 'bg-red-500/20 border-red-500/50 text-red-300'
-            }`}
-          >
-            {(media.media_type === 'tv' || media.first_air_date) ? (
-              <><Tv className="w-3 h-3 mr-0.5" /> TV</>
-            ) : (
-              <><MovieIcon className="w-3 h-3 mr-0.5" /> MOVIE</>
-            )}
-          </Badge>
-        </div>
+      <div className="space-y-0.5">
         <h3 className="font-semibold text-white truncate text-sm group-hover:text-cyan-400 transition-colors">
           {media.title || media.name}
         </h3>
