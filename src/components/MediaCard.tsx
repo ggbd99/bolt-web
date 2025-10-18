@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, Film, X, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Play, Film, X, Bookmark, BookmarkCheck, Tv, Film as MovieIcon } from 'lucide-react';
 import { MediaItem, BookmarkItem, WatchHistoryItem } from '../App';
 
 interface MediaCardProps {
@@ -159,7 +160,23 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
           </div>
         )}
       </div>
-      <div className="space-y-0.5">
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 mb-1">
+          <Badge
+            variant="outline"
+            className={`text-[10px] px-1.5 py-0 h-5 font-semibold border ${
+              (media.media_type === 'tv' || media.first_air_date)
+                ? 'bg-blue-500/20 border-blue-500/50 text-blue-300'
+                : 'bg-red-500/20 border-red-500/50 text-red-300'
+            }`}
+          >
+            {(media.media_type === 'tv' || media.first_air_date) ? (
+              <><Tv className="w-3 h-3 mr-0.5" /> TV</>
+            ) : (
+              <><MovieIcon className="w-3 h-3 mr-0.5" /> MOVIE</>
+            )}
+          </Badge>
+        </div>
         <h3 className="font-semibold text-white truncate text-sm group-hover:text-cyan-400 transition-colors">
           {media.title || media.name}
         </h3>
