@@ -3,6 +3,7 @@ import { Clock, Bookmark } from 'lucide-react';
 import { MediaItem, WatchHistoryItem, BookmarkItem } from '@/App';
 import { ScrollableRow } from '@/components/ScrollableRow';
 import { MediaCard } from '@/components/MediaCard';
+import { ContinueWatchingCard } from '@/components/ContinueWatchingCard';
 import { Hero } from '@/components/home/Hero';
 
 interface BrowseViewProps {
@@ -16,6 +17,7 @@ interface BrowseViewProps {
   heroIndex: number;
   heroTransition: boolean;
   heroDetails: MediaItem[];
+  continueWatchingItems: WatchHistoryItem[];
   onStartWatching: (media: MediaItem) => void;
   onViewDetails: (media: MediaItem) => void;
   toggleBookmark: (media: MediaItem) => void;
@@ -34,6 +36,7 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
   heroIndex,
   heroTransition,
   heroDetails,
+  continueWatchingItems,
   onStartWatching,
   onViewDetails,
   toggleBookmark,
@@ -74,6 +77,32 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
             </div>
           ) : activeTab === 'home' ? (
             <div className="py-12 space-y-12">
+              {/* Continue Watching Section - Always show if there are items */}
+              {continueWatchingItems.length > 0 && (
+                <div className="space-y-5 py-4">
+                  <div className="flex items-center px-8 gap-3">
+                    <h2 className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      Continue Watching
+                    </h2>
+                  </div>
+                  <div className="relative group/row">
+                    <div className="flex overflow-x-auto overflow-y-hidden scrollbar-hide px-16 pb-4 gap-5">
+                      {continueWatchingItems.map((item: WatchHistoryItem) => (
+                        <ContinueWatchingCard
+                          key={`${item.id}-${item.season || 0}-${item.episode || 0}`}
+                          historyItem={item}
+                          onClick={onViewDetails}
+                          onPlay={onStartWatching}
+                          bookmarks={bookmarks}
+                          toggleBookmark={toggleBookmark}
+                          showContinueTag={true}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {trending.length > 0 && (
                 <ScrollableRow
                   title="TOP 10 CONTENT TODAY"
@@ -132,45 +161,76 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                   <p className="text-zinc-400 text-lg">No watch history yet</p>
                 </div>
               ) : (
-                <ScrollableRow
-                  title="Continue Watching"
-                  items={watchHistory.map((item: WatchHistoryItem) => ({
-                    id: item.id,
-                    title: item.title,
-                    name: item.title,
-                    poster_path: item.poster,
-                    media_type: item.media_type,
-                    vote_average: item.vote_average,
-                    release_date: item.release_date,
-                    first_air_date: item.release_date,
-                  }))}
-                  onItemClick={(media: MediaItem) => {
-                    const item = watchHistory.find((h: WatchHistoryItem) => h.id === media.id);
-                    if (item) {
-                        onViewDetails({
-                        ...media,
-                        media_type: item.media_type,
-                      });
-                    }
-                  }}
-                  onPlayClick={(media: MediaItem) => {
-                    const item = watchHistory.find((h: WatchHistoryItem) => h.id === media.id);
-                    if (item) {
-                        onStartWatching({
-                        ...media,
-                        media_type: item.media_type,
-                      });
-                    }
-                  }}
-                  onRemoveItem={removeFromHistory}
-                  showRemoveButton={true}
-                  showBackButton={watchHistory.length > 0}
-                  onBackClick={() => setActiveTab('home')}
-                  bookmarks={bookmarks}
-                  watchHistory={watchHistory}
-                  toggleBookmark={toggleBookmark}
-                  currentSection="history"
-                />
+                <div className="space-y-8">
+                  {/* Continue Watching Items */}
+                  {continueWatchingItems.length > 0 && (
+                    <div className="space-y-5 py-4">
+                      <div className="flex items-center px-8 gap-3">
+                        <h2 className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                          Continue Watching
+                        </h2>
+                      </div>
+                      <div className="relative group/row">
+                        <div className="flex overflow-x-auto overflow-y-hidden scrollbar-hide px-16 pb-4 gap-5">
+                          {continueWatchingItems.map((item: WatchHistoryItem) => (
+                            <ContinueWatchingCard
+                              key={`${item.id}-${item.season || 0}-${item.episode || 0}`}
+                              historyItem={item}
+                              onClick={onViewDetails}
+                              onPlay={onStartWatching}
+                              onRemove={removeFromHistory}
+                              showRemove={true}
+                              bookmarks={bookmarks}
+                              toggleBookmark={toggleBookmark}
+                              showContinueTag={false}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* All Watch History */}
+                  <ScrollableRow
+                    title="All Watch History"
+                    items={watchHistory.map((item: WatchHistoryItem) => ({
+                      id: item.id,
+                      title: item.title,
+                      name: item.title,
+                      poster_path: item.poster,
+                      media_type: item.media_type,
+                      vote_average: item.vote_average,
+                      release_date: item.release_date,
+                      first_air_date: item.release_date,
+                    }))}
+                    onItemClick={(media: MediaItem) => {
+                      const item = watchHistory.find((h: WatchHistoryItem) => h.id === media.id);
+                      if (item) {
+                          onViewDetails({
+                          ...media,
+                          media_type: item.media_type,
+                        });
+                      }
+                    }}
+                    onPlayClick={(media: MediaItem) => {
+                      const item = watchHistory.find((h: WatchHistoryItem) => h.id === media.id);
+                      if (item) {
+                          onStartWatching({
+                          ...media,
+                          media_type: item.media_type,
+                        });
+                      }
+                    }}
+                    onRemoveItem={removeFromHistory}
+                    showRemoveButton={true}
+                    showBackButton={watchHistory.length > 0}
+                    onBackClick={() => setActiveTab('home')}
+                    bookmarks={bookmarks}
+                    watchHistory={watchHistory}
+                    toggleBookmark={toggleBookmark}
+                    currentSection="history"
+                  />
+                </div>
               )}
             </div>
           ) : activeTab === 'bookmarks' ? (
@@ -222,6 +282,34 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
             </div>
           ) : activeTab === 'movies' ? (
             <div className="py-12 space-y-12">
+              {/* Continue Watching Movies */}
+              {continueWatchingItems.filter(item => item.media_type === 'movie').length > 0 && (
+                <div className="space-y-5 py-4">
+                  <div className="flex items-center px-8 gap-3">
+                    <h2 className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      Continue Watching Movies
+                    </h2>
+                  </div>
+                  <div className="relative group/row">
+                    <div className="flex overflow-x-auto overflow-y-hidden scrollbar-hide px-16 pb-4 gap-5">
+                      {continueWatchingItems
+                        .filter(item => item.media_type === 'movie')
+                        .map((item: WatchHistoryItem) => (
+                        <ContinueWatchingCard
+                          key={item.id}
+                          historyItem={item}
+                          onClick={onViewDetails}
+                          onPlay={onStartWatching}
+                          bookmarks={bookmarks}
+                          toggleBookmark={toggleBookmark}
+                          showContinueTag={true}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {popularMovies.length > 0 && (
                 <ScrollableRow
                   title="Popular Movies"
@@ -237,6 +325,34 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
             </div>
           ) : activeTab === 'tv' ? (
             <div className="py-12 space-y-12">
+              {/* Continue Watching TV Shows */}
+              {continueWatchingItems.filter(item => item.media_type === 'tv').length > 0 && (
+                <div className="space-y-5 py-4">
+                  <div className="flex items-center px-8 gap-3">
+                    <h2 className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      Continue Watching TV Shows
+                    </h2>
+                  </div>
+                  <div className="relative group/row">
+                    <div className="flex overflow-x-auto overflow-y-hidden scrollbar-hide px-16 pb-4 gap-5">
+                      {continueWatchingItems
+                        .filter(item => item.media_type === 'tv')
+                        .map((item: WatchHistoryItem) => (
+                        <ContinueWatchingCard
+                          key={`${item.id}-${item.season}-${item.episode}`}
+                          historyItem={item}
+                          onClick={onViewDetails}
+                          onPlay={onStartWatching}
+                          bookmarks={bookmarks}
+                          toggleBookmark={toggleBookmark}
+                          showContinueTag={true}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {popularTV.length > 0 && (
                 <ScrollableRow
                   title="Popular TV Shows"

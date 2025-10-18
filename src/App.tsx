@@ -5,6 +5,8 @@ import { DetailsView } from './views/DetailsView';
 import { WatchView } from './views/WatchView';
 import { LoadingOverlay } from './components/common/LoadingOverlay';
 import { ToastNotification, Toast } from './components/common/ToastNotification';
+import { storage } from './utils/storage';
+import { getContinueWatchingItems } from './utils/watchHistory';
 
 
 type Episode = {
@@ -123,49 +125,50 @@ const App: React.FC = () => {
 
   const HERO_SLIDE_COUNT = 5;
 
+  const showToast = React.useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type });
+  }, []);
 
-
-  // Load watch history from local storage on initial load
+  // Enhanced storage management with better error handling
   useEffect(() => {
-    try {
-      const storedHistory = localStorage.getItem('watchHistory');
-      if (storedHistory) {
-        setWatchHistory(JSON.parse(storedHistory));
-      }
-    } catch (error) {
-      console.error('Failed to load watch history from local storage:', error);
+    // Load watch history from local storage on initial load
+    const storedHistory = storage.getItem<WatchHistoryItem[]>('bolt_web_watch_history', []);
+    if (storedHistory.length > 0) {
+      setWatchHistory(storedHistory);
+      console.log('Loaded watch history:', storedHistory.length, 'items');
+    }
+
+    // Load bookmarks from local storage on initial load
+    const storedBookmarks = storage.getItem<BookmarkItem[]>('bolt_web_bookmarks', []);
+    if (storedBookmarks.length > 0) {
+      setBookmarks(storedBookmarks);
+      console.log('Loaded bookmarks:', storedBookmarks.length, 'items');
     }
   }, []);
 
   // Save watch history to local storage whenever it changes
   useEffect(() => {
-    try {
-      localStorage.setItem('watchHistory', JSON.stringify(watchHistory));
-    } catch (error) {
-      console.error('Failed to save watch history to local storage:', error);
-    }
-  }, [watchHistory]);
-
-  // Load bookmarks from local storage on initial load
-  useEffect(() => {
-    try {
-      const storedBookmarks = localStorage.getItem('bookmarks');
-      if (storedBookmarks) {
-        setBookmarks(JSON.parse(storedBookmarks));
+    if (watchHistory.length > 0) {
+      const success = storage.setItem('bolt_web_watch_history', watchHistory);
+      if (success) {
+        console.log('Watch history saved:', watchHistory.length, 'items');
+      } else {
+        showToast('Failed to save watch history', 'error');
       }
-    } catch (error) {
-      console.error('Failed to load bookmarks from local storage:', error);
     }
-  }, []);
+  }, [watchHistory, showToast]);
 
   // Save bookmarks to local storage whenever they change
   useEffect(() => {
-    try {
-      localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-    } catch (error) {
-      console.error('Failed to save bookmarks to local storage:', error);
+    if (bookmarks.length > 0) {
+      const success = storage.setItem('bolt_web_bookmarks', bookmarks);
+      if (success) {
+        console.log('Bookmarks saved:', bookmarks.length, 'items');
+      } else {
+        showToast('Failed to save bookmarks', 'error');
+      }
     }
-  }, [bookmarks]);
+  }, [bookmarks, showToast]);
 
   // Toast notification effect
   useEffect(() => {
@@ -174,10 +177,6 @@ const App: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [toast]);
-
-  const showToast = React.useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    setToast({ message, type });
-  }, []);
 
   // Hero slider effect
   useEffect(() => {
@@ -241,7 +240,7 @@ const App: React.FC = () => {
           }
           return item.id !== historyItem.id;
         });
-        return [historyItem, ...filtered].slice(0, 50);
+        return [historyItem, ...filtered].slice(0, 100); // Increased limit to 100
       });
     };
 
@@ -341,7 +340,7 @@ const App: React.FC = () => {
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [showToast]);
 
   const handleViewDetails = React.useCallback(async (media: MediaItem) => {
     setIsLoadingContent(true);
@@ -482,6 +481,9 @@ const App: React.FC = () => {
     return `${baseUrl}?${params.toString()}`;
   };
 
+  // Get continue watching items for display
+  const continueWatchingItems = getContinueWatchingItems(watchHistory);
+
   if (view === 'details' && selectedMedia) {
     return (
       <div className="min-h-screen bg-zinc-950 text-white">
@@ -544,6 +546,7 @@ const App: React.FC = () => {
         heroIndex={heroIndex}
         heroTransition={heroTransition}
         heroDetails={heroDetails}
+        continueWatchingItems={continueWatchingItems}
         onStartWatching={startWatching}
         onViewDetails={handleViewDetails}
         toggleBookmark={toggleBookmark}
