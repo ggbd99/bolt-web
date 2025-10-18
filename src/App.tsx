@@ -139,12 +139,10 @@ const App: React.FC = () => {
 
   // Save watch history to local storage whenever it changes
   useEffect(() => {
-    if (watchHistory.length > 0) {
-      try {
-        localStorage.setItem('watchHistory', JSON.stringify(watchHistory));
-      } catch (error) {
-        console.error('Failed to save watch history to local storage:', error);
-      }
+    try {
+      localStorage.setItem('watchHistory', JSON.stringify(watchHistory));
+    } catch (error) {
+      console.error('Failed to save watch history to local storage:', error);
     }
   }, [watchHistory]);
 
@@ -162,12 +160,10 @@ const App: React.FC = () => {
 
   // Save bookmarks to local storage whenever they change
   useEffect(() => {
-    if (bookmarks.length > 0) {
-      try {
-        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-      } catch (error) {
-        console.error('Failed to save bookmarks to local storage:', error);
-      }
+    try {
+      localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    } catch (error) {
+      console.error('Failed to save bookmarks to local storage:', error);
     }
   }, [bookmarks]);
 
@@ -528,7 +524,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-950 to-zinc-950 text-white">
       {isLoadingContent && <LoadingOverlay loadingMessage={loadingMessage} />}
       <ToastNotification toast={toast} />
       <Header

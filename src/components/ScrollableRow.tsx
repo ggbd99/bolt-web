@@ -50,14 +50,14 @@ export const ScrollableRow: React.FC<ScrollableRowProps> = React.memo(({ title, 
           </div>
         </div>
       ) : (
-        <div className="flex items-center px-8">
+        <div className="flex items-center px-8 gap-3">
           {showBackButton && (
-            <Button variant="ghost" size="icon" onClick={onBackClick} className="mr-2">
+            <Button variant="ghost" size="icon" onClick={onBackClick} className="hover:bg-cyan-500/20 hover:text-cyan-400 transition-all hover:scale-110 rounded-xl">
               <ArrowLeft className="w-6 h-6" />
             </Button>
           )}
-          <h2 className="font-bold text-2xl">
-            <span className="text-indigo-500 font-black">|</span> {title}
+          <h2 className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            {title}
           </h2>
         </div>
       )}

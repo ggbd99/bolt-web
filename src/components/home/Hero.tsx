@@ -67,14 +67,14 @@ export const Hero: React.FC<HeroProps> = ({
                     />
                   )}
                   <div className="flex items-center gap-4 text-base">
-                    <div className="flex items-center gap-2 bg-indigo-600 px-3 py-1.5 rounded-md shadow-lg">
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 px-4 py-2 rounded-xl shadow-2xl shadow-yellow-500/30 border border-yellow-400/30">
                       <Star className="w-5 h-5 fill-white text-white" />
                       <span className="text-white font-bold">{item.vote_average?.toFixed(1)}</span>
                     </div>
-                    <span className="text-white font-semibold drop-shadow-lg">
+                    <span className="text-white font-semibold drop-shadow-2xl text-lg">
                       {(item.release_date || item.first_air_date)?.split('-')[0]}
                     </span>
-                    <span className="px-3 py-1.5 bg-black/70 backdrop-blur-sm text-white text-sm font-bold rounded-md border border-zinc-600 shadow-lg">
+                    <span className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 backdrop-blur-sm text-white text-sm font-bold rounded-xl border border-cyan-400/30 shadow-2xl shadow-cyan-500/30">
                       {item.media_type === 'tv' ? 'TV SERIES' : 'MOVIE'}
                     </span>
                   </div>
@@ -84,7 +84,7 @@ export const Hero: React.FC<HeroProps> = ({
                   {detailedItem.genres && detailedItem.genres.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {detailedItem.genres.slice(0, 4).map((genre: { id: number; name: string }) => (
-                        <span key={genre.id} className="px-3 py-1 bg-black/60 backdrop-blur-sm text-white text-sm rounded-full border border-zinc-700 shadow-md">
+                        <span key={genre.id} className="px-4 py-2 bg-zinc-900/80 backdrop-blur-md text-white text-sm font-semibold rounded-full border border-zinc-600 shadow-lg hover:border-cyan-500 hover:bg-zinc-800/80 transition-all">
                           {genre.name}
                         </span>
                       ))}
@@ -93,7 +93,7 @@ export const Hero: React.FC<HeroProps> = ({
                   <div className="flex items-center gap-4 pt-4">
                     <Button
                       size="lg"
-                      className="bg-white text-black hover:bg-zinc-200 font-bold px-10 py-6 text-lg rounded-md shadow-2xl transition-all hover:scale-105 hover:shadow-indigo-500/50"
+                      className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-12 py-7 text-lg rounded-xl shadow-2xl shadow-cyan-500/50 transition-all hover:scale-105 hover:shadow-cyan-500/70 border border-cyan-400/30"
                       onClick={() => onStartWatching(item)}
                     >
                       <Play className="w-6 h-6 mr-2" fill="currentColor" />
@@ -102,7 +102,7 @@ export const Hero: React.FC<HeroProps> = ({
                     <Button
                       size="lg"
                       variant="outline"
-                      className="border-2 border-zinc-400 bg-black/60 backdrop-blur-sm hover:bg-black/80 hover:border-indigo-400 text-white font-bold px-10 py-6 text-lg rounded-md shadow-2xl transition-all hover:scale-105"
+                      className="border-2 border-zinc-500 bg-zinc-900/80 backdrop-blur-md hover:bg-zinc-800/90 hover:border-cyan-400 hover:text-cyan-400 text-white font-bold px-12 py-7 text-lg rounded-xl shadow-2xl transition-all hover:scale-105"
                       onClick={() => onViewDetails(item)}
                     >
                       <Info className="w-6 h-6 mr-2" />

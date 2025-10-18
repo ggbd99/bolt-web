@@ -44,7 +44,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
           {media.topTenNumber}
         </div>
         <div className="relative z-10 w-[150px] sm:w-[180px] md:w-[200px] flex-shrink-0">
-          <div className="relative aspect-[2/3] overflow-hidden rounded bg-zinc-900 shadow-xl group-hover:shadow-2xl group-hover:shadow-indigo-500/20 transition-all duration-300">
+          <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/40 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
             {media.poster_path ? (
               <>
                 <img
@@ -62,7 +62,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="bg-black/50 hover:bg-black/80 text-white"
+                    className="bg-black/60 hover:bg-cyan-500/90 backdrop-blur-sm text-white hover:scale-110 transition-all rounded-lg border border-white/20 hover:border-cyan-400"
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleBookmark(media);
@@ -100,13 +100,13 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
       className="cursor-pointer group flex-shrink-0 w-[150px] sm:w-[180px] md:w-[200px] transition-transform hover:scale-105 snap-start"
       onClick={() => onClick(media)}
     >
-      <div className="relative aspect-[2/3] overflow-hidden rounded bg-zinc-900 mb-2 shadow-lg group-hover:shadow-xl group-hover:shadow-indigo-500/30 transition-all duration-300">
+      <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 mb-2 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/40 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
         <div className="absolute top-2 right-2 z-20 flex gap-2">
           {showRemove && onRemove && (
             <Button
               variant="ghost"
               size="icon"
-              className="bg-black/50 hover:bg-black/80 text-white"
+              className="bg-black/60 hover:bg-red-500/90 backdrop-blur-sm text-white hover:scale-110 transition-all rounded-lg border border-white/20 hover:border-red-400"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove(media.id);
@@ -118,7 +118,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
           <Button
             variant="ghost"
             size="icon"
-            className="bg-black/50 hover:bg-black/80 text-white"
+            className="bg-black/60 hover:bg-cyan-500/90 backdrop-blur-sm text-white hover:scale-110 transition-all rounded-lg border border-white/20 hover:border-cyan-400"
             onClick={(e) => {
               e.stopPropagation();
               toggleBookmark(media);
@@ -153,14 +153,14 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
         {hasProgress && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800 z-30">
             <div
-              className="h-full bg-indigo-600"
+              className="h-full bg-gradient-to-r from-cyan-500 to-blue-600"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
         )}
       </div>
       <div className="space-y-0.5">
-        <h3 className="font-medium text-white truncate text-sm group-hover:text-indigo-400 transition-colors">
+        <h3 className="font-semibold text-white truncate text-sm group-hover:text-cyan-400 transition-colors">
           {media.title || media.name}
         </h3>
         <div className="flex items-center gap-2 text-zinc-500 text-xs">

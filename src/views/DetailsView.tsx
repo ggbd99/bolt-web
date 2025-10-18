@@ -32,7 +32,7 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
   const isBookmarked = bookmarks.some((b) => b.id === selectedMedia.id);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white animate-in fade-in duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-950 to-zinc-950 text-white animate-in fade-in duration-500">
       <div
         className="absolute top-0 left-0 w-full h-[60vh] bg-cover bg-center"
         style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${selectedMedia.backdrop_path})` }}
@@ -41,7 +41,7 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
-        <Button variant="ghost" size="icon" onClick={onBack} className="absolute top-6 left-4 hover:bg-white/10">
+        <Button variant="ghost" size="icon" onClick={onBack} className="absolute top-6 left-4 hover:bg-cyan-500/20 hover:text-cyan-400 transition-all hover:scale-110 rounded-xl h-12 w-12">
           <ArrowLeft className="w-6 h-6" />
         </Button>
 
@@ -56,33 +56,33 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
           <div className="md:col-span-2 space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold">{selectedMedia.title || selectedMedia.name}</h1>
             <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 fill-yellow-500 text-yellow-500" />
-                <span className="font-bold">{selectedMedia.vote_average?.toFixed(1)}</span>
+              <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 px-4 py-2 rounded-xl shadow-xl shadow-yellow-500/30 border border-yellow-400/30">
+                <Star className="w-5 h-5 fill-white text-white" />
+                <span className="font-bold text-white">{selectedMedia.vote_average?.toFixed(1)}</span>
               </div>
-              <span className="text-zinc-400">|</span>
-              <span>{selectedMedia.release_date?.split('-')[0] || selectedMedia.first_air_date?.split('-')[0]}</span>
+              <span className="text-zinc-400 text-xl">•</span>
+              <span className="font-semibold text-lg">{selectedMedia.release_date?.split('-')[0] || selectedMedia.first_air_date?.split('-')[0]}</span>
               {selectedMedia.runtime ? (
                 <>
-                  <span className="text-zinc-400">|</span>
-                  <span>{`${Math.floor(selectedMedia.runtime / 60)}h ${selectedMedia.runtime % 60}m`}</span>
+                  <span className="text-zinc-400 text-xl">•</span>
+                  <span className="font-semibold text-lg">{`${Math.floor(selectedMedia.runtime / 60)}h ${selectedMedia.runtime % 60}m`}</span>
                 </>
               ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               {selectedMedia.genres?.map((genre) => (
-                <Badge key={genre.id} variant="outline" className="border-zinc-700 text-zinc-300">
+                <Badge key={genre.id} variant="outline" className="border-zinc-600 bg-zinc-900/80 text-white font-semibold px-4 py-2 rounded-full hover:border-cyan-500 hover:bg-zinc-800/80 transition-all">
                   {genre.name}
                 </Badge>
               ))}
             </div>
             <p className="text-zinc-300 leading-relaxed max-w-3xl">{selectedMedia.overview}</p>
             <div className="flex items-center gap-4">
-              <Button size="lg" onClick={() => onPlay(selectedMedia)} className="bg-white text-black hover:bg-zinc-200 font-bold px-8 py-6 text-lg">
+              <Button size="lg" onClick={() => onPlay(selectedMedia)} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-10 py-7 text-lg rounded-xl shadow-2xl shadow-cyan-500/50 transition-all hover:scale-105 hover:shadow-cyan-500/70 border border-cyan-400/30">
                 <Play className="w-6 h-6 mr-2" fill="currentColor" />
                 Play
               </Button>
-              <Button size="lg" variant="outline" onClick={() => toggleBookmark(selectedMedia)} className="border-2 border-zinc-400 bg-black/60 backdrop-blur-sm hover:bg-black/80 hover:border-indigo-400 text-white font-bold px-8 py-6 text-lg">
+              <Button size="lg" variant="outline" onClick={() => toggleBookmark(selectedMedia)} className="border-2 border-zinc-500 bg-zinc-900/80 backdrop-blur-md hover:bg-zinc-800/90 hover:border-cyan-400 hover:text-cyan-400 text-white font-bold px-10 py-7 text-lg rounded-xl shadow-2xl transition-all hover:scale-105">
                 {isBookmarked ? (
                   <BookmarkCheck className="w-6 h-6 mr-2" />
                 ) : (
@@ -96,9 +96,9 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
 
         <div className="pt-12 space-y-8">
             {selectedMedia.credits?.cast && selectedMedia.credits.cast.length > 0 && (
-                 <Card className="bg-zinc-900 border-zinc-800">
+                 <Card className="bg-zinc-900/80 backdrop-blur-md border-2 border-zinc-700/50 rounded-2xl shadow-2xl">
                  <CardContent className="p-6 space-y-6">
-                <div className="pt-6 border-t border-zinc-800">
+                <div className="pt-6 border-t border-zinc-700">
                   <h4 className="text-lg font-semibold mb-4">Top Cast</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {selectedMedia.credits.cast.slice(0, 8).map((actor: CastMember) => (

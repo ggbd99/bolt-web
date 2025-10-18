@@ -53,10 +53,10 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
         />
       )}
       <main className={`relative ${activeTab === 'home' ? 'pt-[100vh]' : 'pt-24'}`}>
-        <div className="bg-zinc-950">
+        <div className="bg-transparent">
           {searchResults.length > 0 ? (
             <div className="container mx-auto py-6 space-y-4">
-              <h2 className="text-2xl font-bold px-4"><span className="text-indigo-500">|</span> Search Results</h2>
+              <h2 className="text-2xl font-bold px-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Search Results</h2>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 px-4">
                 {searchResults.map((media: MediaItem) => (
                   <MediaCard
