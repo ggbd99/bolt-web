@@ -112,6 +112,7 @@ const App: React.FC = () => {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
 
   const [watchHistory, setWatchHistory] = useState<WatchHistoryItem[]>([]);
+  const watchHistoryRef = React.useRef<WatchHistoryItem[]>([]);
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [lastPlayerState, setLastPlayerState] = useState<PlayerEventData | null>(null);
   const [playerKey, setPlayerKey] = useState<number>(0);
@@ -135,6 +136,7 @@ const App: React.FC = () => {
     const storedHistory = storage.getItem<WatchHistoryItem[]>('bolt_web_watch_history', []);
     if (storedHistory.length > 0) {
       setWatchHistory(storedHistory);
+      watchHistoryRef.current = storedHistory;
       console.log('Loaded watch history:', storedHistory.length, 'items');
     }
 
@@ -145,6 +147,11 @@ const App: React.FC = () => {
       console.log('Loaded bookmarks:', storedBookmarks.length, 'items');
     }
   }, []);
+
+  // Sync ref whenever watchHistory changes
+  useEffect(() => {
+    watchHistoryRef.current = watchHistory;
+  }, [watchHistory]);
 
   // Save watch history to local storage whenever it changes
   useEffect(() => {
@@ -245,6 +252,8 @@ const App: React.FC = () => {
     };
 
     function handlePlayerMessage(event: MessageEvent) {
+      if (typeof event.data !== 'string') return;
+      
       try {
         const message = JSON.parse(event.data);
         if (message.type === 'PLAYER_EVENT') {
@@ -378,7 +387,7 @@ const App: React.FC = () => {
       if (type === 'tv') {
         setLoadingMessage('Loading episodes...');
         setSeasons(fullDetails.seasons || []);
-        const historyItem = watchHistory.find((h: WatchHistoryItem) => h.id === media.id && h.media_type === 'tv');
+        const historyItem = watchHistoryRef.current.find((h: WatchHistoryItem) => h.id === media.id && h.media_type === 'tv');
         if (historyItem) {
           setCurrentSeason(historyItem.season!);
           setCurrentEpisode(historyItem.episode!);
@@ -401,7 +410,7 @@ const App: React.FC = () => {
       setIsLoadingContent(false);
       setLoadingMessage('');
     }
-  }, [watchHistory, loadSeasonEpisodes, showToast]);
+  }, [loadSeasonEpisodes, showToast]);
 
   const changeSeason = async (seasonNumber: number) => {
     if (!selectedMedia) return;
@@ -439,7 +448,7 @@ const App: React.FC = () => {
     showToast('Removed from watch history', 'info');
   }, [showToast]);
 
-  const getPlayerUrl = () => {
+  const getPlayerUrl = React.useCallback(() => {
     if (!selectedMedia) return '';
     
     const type = selectedMedia.media_type;
@@ -453,7 +462,7 @@ const App: React.FC = () => {
         color: '6366f1'
       });
       
-      const historyItem = watchHistory.find((item: WatchHistoryItem) =>
+      const historyItem = watchHistoryRef.current.find((item: WatchHistoryItem) =>
         item.id === id && item.media_type === 'tv' &&
         item.season === currentSeason && item.episode === currentEpisode
       );
@@ -470,7 +479,7 @@ const App: React.FC = () => {
       color: '6366f1'
     });
     
-    const historyItem = watchHistory.find((item: WatchHistoryItem) =>
+    const historyItem = watchHistoryRef.current.find((item: WatchHistoryItem) =>
       item.id === id && item.media_type === 'movie'
     );
     
@@ -479,7 +488,7 @@ const App: React.FC = () => {
     }
     
     return `${baseUrl}?${params.toString()}`;
-  };
+  }, [selectedMedia, currentSeason, currentEpisode]);
 
   // Get continue watching items for display
   const continueWatchingItems = getContinueWatchingItems(watchHistory);
@@ -504,7 +513,6 @@ const App: React.FC = () => {
   if (view === 'watch' && selectedMedia) {
     return (
       <div className="min-h-screen bg-black text-white">
-        <AdBlockDetector />
         {isLoadingContent && <LoadingOverlay loadingMessage={loadingMessage} />}
         <ToastNotification toast={toast} />
         <WatchView

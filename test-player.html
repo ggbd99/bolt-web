@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidking Player Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .player-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            background: #111;
+            margin-bottom: 20px;
+        }
+        .player-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .info {
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-urls {
+            background: #333;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .test-urls a {
+            color: #6366f1;
+            display: block;
+            margin: 5px 0;
+            text-decoration: none;
+        }
+        .test-urls a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vidking Player Test</h1>
+        
+        <div class="info">
+            <h2>Test 1: Basic Movie (Avengers: Endgame - ID: 299534)</h2>
+            <p><strong>Current URL:</strong> <span id="current-url"></span></p>
+        </div>
+
+        <div class="player-wrapper">
+            <iframe
+                id="player"
+                src="https://www.vidking.net/embed/movie/299534?color=6366f1"
+                allowfullscreen
+                allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"
+                referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+        </div>
+
+        <div class="info">
+            <h3>Additional Test URLs (Click to load in player):</h3>
+            <div class="test-urls">
+                <a href="#" onclick="loadPlayer('https://www.vidking.net/embed/movie/1078605?color=6366f1'); return false;">
+                    Movie: Deadpool (1078605)
+                </a>
+                <a href="#" onclick="loadPlayer('https://www.vidking.net/embed/tv/119051/1/1?color=6366f1&episodeSelector=true&nextEpisode=true'); return false;">
+                    TV: Wednesday S01E01 (119051)
+                </a>
+                <a href="#" onclick="loadPlayer('https://www.vidking.net/embed/movie/299534?color=e50914&autoPlay=true'); return false;">
+                    Movie with Auto-play: Avengers Endgame
+                </a>
+            </div>
+        </div>
+
+        <div class="info">
+            <h3>Player Messages:</h3>
+            <div id="messages" style="background: #111; padding: 10px; border-radius: 4px; max-height: 300px; overflow-y: auto; font-size: 12px;">
+                <div>Waiting for player events...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const currentUrlSpan = document.getElementById('current-url');
+        const messagesDiv = document.getElementById('messages');
+        const player = document.getElementById('player');
+
+        // Display current URL
+        currentUrlSpan.textContent = player.src;
+
+        // Load different player URL
+        function loadPlayer(url) {
+            player.src = url;
+            currentUrlSpan.textContent = url;
+            addMessage('Loading: ' + url);
+        }
+
+        // Add message to log
+        function addMessage(message) {
+            const div = document.createElement('div');
+            div.style.marginBottom = '5px';
+            div.style.padding = '5px';
+            div.style.borderLeft = '3px solid #6366f1';
+            div.style.paddingLeft = '10px';
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            messagesDiv.insertBefore(div, messagesDiv.firstChild);
+        }
+
+        // Listen for player messages
+        window.addEventListener('message', function(event) {
+            try {
+                if (typeof event.data === 'string') {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'PLAYER_EVENT') {
+                        const eventData = data.data;
+                        let message = `Event: ${eventData.event}`;
+                        
+                        if (eventData.currentTime !== undefined) {
+                            message += ` | Time: ${Math.floor(eventData.currentTime)}s`;
+                        }
+                        if (eventData.duration !== undefined) {
+                            message += ` | Duration: ${Math.floor(eventData.duration)}s`;
+                        }
+                        if (eventData.season !== undefined) {
+                            message += ` | S${eventData.season}E${eventData.episode}`;
+                        }
+                        
+                        addMessage(message);
+                    }
+                }
+            } catch (e) {
+                // Not a JSON message or not relevant
+            }
+        });
+
+        // Log when iframe loads
+        player.addEventListener('load', function() {
+            addMessage('Player iframe loaded successfully');
+        });
+
+        player.addEventListener('error', function(e) {
+            addMessage('ERROR: Player failed to load - ' + e.message);
+        });
+
+        addMessage('Test page loaded. Attempting to load player...');
+    </script>
+</body>
+</html>

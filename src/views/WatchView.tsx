@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Play, Star, Clock, Bookmark, BookmarkCheck, Film, Tv, Info } from 'lucide-react';
-import { MediaItem, BookmarkItem } from '@/App'; // Assuming types are exported from App
+import { ArrowLeft, Play, Star, Clock, Bookmark, BookmarkCheck, Film, Tv, Info, AlertCircle, RefreshCw } from 'lucide-react';
+import { MediaItem, BookmarkItem } from '@/App';
 
 type Episode = {
     id: number;
@@ -64,6 +64,40 @@ export const WatchView: React.FC<WatchViewProps> = ({
   changeEpisode,
   onViewDetails,
 }) => {
+  const [playerError, setPlayerError] = useState<boolean>(false);
+  const [isPlayerLoading, setIsPlayerLoading] = useState<boolean>(true);
+  const [retryCount, setRetryCount] = useState<number>(0);
+
+  // Memoize the player URL to prevent infinite re-renders
+  const playerUrl = React.useMemo(() => getPlayerUrl(), [playerKey]);
+
+  // Reset error state when player URL changes
+  useEffect(() => {
+    setPlayerError(false);
+    setIsPlayerLoading(true);
+    const timer = setTimeout(() => {
+      setIsPlayerLoading(false);
+    }, 5000); // Give player 5 seconds to load
+
+    return () => clearTimeout(timer);
+  }, [playerKey]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+    setPlayerError(false);
+    setIsPlayerLoading(true);
+  };
+
+  const handleIframeLoad = () => {
+    setIsPlayerLoading(false);
+    setPlayerError(false);
+  };
+
+  const handleIframeError = () => {
+    setIsPlayerLoading(false);
+    setPlayerError(true);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 to-transparent">
@@ -97,14 +131,53 @@ export const WatchView: React.FC<WatchViewProps> = ({
       </header>
 
       <div className="pt-16">
-        <div className="aspect-video bg-black">
+        <div className="aspect-video bg-black relative">
+          {isPlayerLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+                <p className="text-zinc-400">Loading player...</p>
+              </div>
+            </div>
+          )}
+          
+          {playerError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/90 z-20">
+              <div className="text-center max-w-md px-4">
+                <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Player Loading Error</h3>
+                <p className="text-zinc-400 mb-4">
+                  The video player failed to load. This could be due to network issues or content availability.
+                </p>
+                <div className="space-y-2">
+                  <Button onClick={handleRetry} className="w-full bg-indigo-600 hover:bg-indigo-700">
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Retry Player
+                  </Button>
+                  <Button onClick={onBack} variant="outline" className="w-full">
+                    Go Back
+                  </Button>
+                </div>
+                <p className="text-xs text-zinc-500 mt-4">
+                  Player URL: {playerUrl}
+                </p>
+              </div>
+            </div>
+          )}
+
           <iframe
-            key={playerKey}
-            src={getPlayerUrl()}
+            key={`${playerKey}-${retryCount}`}
+            src={playerUrl}
             className="w-full h-full"
             frameBorder="0"
-            allowFullScreen={true}
+            allowFullScreen
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"
+            referrerPolicy="no-referrer-when-downgrade"
+            onLoad={handleIframeLoad}
+            onError={handleIframeError}
             style={{ border: 'none' }}
+            title="Video Player"
           />
         </div>
       </div>
