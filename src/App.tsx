@@ -245,7 +245,6 @@ const App: React.FC = () => {
     };
 
     function handlePlayerMessage(event: MessageEvent) {
-      console.log('player message:', event.data);
       try {
         const message = JSON.parse(event.data);
         if (message.type === 'PLAYER_EVENT') {
@@ -505,6 +504,7 @@ const App: React.FC = () => {
   if (view === 'watch' && selectedMedia) {
     return (
       <div className="min-h-screen bg-black text-white">
+        <AdBlockDetector />
         {isLoadingContent && <LoadingOverlay loadingMessage={loadingMessage} />}
         <ToastNotification toast={toast} />
         <WatchView
