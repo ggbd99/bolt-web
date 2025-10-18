@@ -8,6 +8,7 @@ interface ScrollableRowProps {
   title: string;
   items: MediaItem[];
   onItemClick: (item: MediaItem) => void;
+  onPlayClick?: (item: MediaItem) => void;
   isTopTen?: boolean;
   onRemoveItem?: (id: number) => void;
   showRemoveButton?: boolean;
@@ -18,7 +19,7 @@ interface ScrollableRowProps {
   toggleBookmark: (media: MediaItem) => void;
 }
 
-export const ScrollableRow: React.FC<ScrollableRowProps> = React.memo(({ title, items, onItemClick, isTopTen = false, onRemoveItem, showRemoveButton = false, showBackButton = false, onBackClick, bookmarks, watchHistory, toggleBookmark }) => {
+export const ScrollableRow: React.FC<ScrollableRowProps> = React.memo(({ title, items, onItemClick, onPlayClick, isTopTen = false, onRemoveItem, showRemoveButton = false, showBackButton = false, onBackClick, bookmarks, watchHistory, toggleBookmark }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -67,7 +68,7 @@ export const ScrollableRow: React.FC<ScrollableRowProps> = React.memo(({ title, 
           style={{ maxHeight: 'fit-content' }}
         >
           {items.map((item: MediaItem) => (
-            <MediaCard key={item.id} media={item} onClick={onItemClick} onRemove={onRemoveItem} showRemove={showRemoveButton} bookmarks={bookmarks} watchHistory={watchHistory} toggleBookmark={toggleBookmark} />
+            <MediaCard key={item.id} media={item} onClick={onItemClick} onPlay={onPlayClick || onItemClick} onRemove={onRemoveItem} showRemove={showRemoveButton} bookmarks={bookmarks} watchHistory={watchHistory} toggleBookmark={toggleBookmark} />
           ))}
         </div>
         <button

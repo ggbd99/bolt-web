@@ -2,9 +2,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Play, Star, Clock, Tv, Film, Info, Bookmark, BookmarkCheck } from 'lucide-react';
-import { MediaItem, BookmarkItem } from '@/App'; // Assuming types are exported from App
-import { ScrollableRow } from '@/components/ScrollableRow';
+import { ArrowLeft, Play, Star, Bookmark, BookmarkCheck } from 'lucide-react';
+import { MediaItem, BookmarkItem } from '@/App';
 
 type CastMember = {
     id: number;

@@ -24,7 +24,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ media, onClick, onPlay, on
   });
 
   const hasProgress = historyItem && historyItem.progress && historyItem.duration &&
-    (historyItem.progress / history.duration) < 0.95;
+    (historyItem.progress / historyItem.duration) < 0.95;
   const progressPercent = hasProgress ? (historyItem.progress / historyItem.duration) * 100 : 0;
 
   if (isTopTen) {
