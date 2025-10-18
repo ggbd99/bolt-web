@@ -245,6 +245,7 @@ const App: React.FC = () => {
     };
 
     function handlePlayerMessage(event: MessageEvent) {
+      console.log('player message:', event.data);
       try {
         const message = JSON.parse(event.data);
         if (message.type === 'PLAYER_EVENT') {
