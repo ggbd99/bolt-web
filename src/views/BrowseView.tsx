@@ -4,6 +4,8 @@ import { MediaItem, WatchHistoryItem, BookmarkItem } from '@/App';
 import { ScrollableRow } from '@/components/ScrollableRow';
 import { MediaCard } from '@/components/MediaCard';
 import { ContinueWatchingCard } from '@/components/ContinueWatchingCard';
+import { HistoryCard } from '@/components/HistoryCard';
+import { WatchStats } from '@/components/WatchStats';
 import { Hero } from '@/components/home/Hero';
 
 interface BrowseViewProps {
@@ -21,7 +23,7 @@ interface BrowseViewProps {
   onStartWatching: (media: MediaItem) => void;
   onViewDetails: (media: MediaItem) => void;
   toggleBookmark: (media: MediaItem) => void;
-  removeFromHistory: (id: number) => void;
+  removeFromHistory: (id: number, season?: number, episode?: number) => void;
   setActiveTab: (tab: string) => void;
 }
 
@@ -159,9 +161,13 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                 <div className="text-center py-20">
                   <Clock className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
                   <p className="text-zinc-400 text-lg">No watch history yet</p>
+                  <p className="text-zinc-500 text-sm mt-2">Start watching something to see your history here</p>
                 </div>
               ) : (
                 <div className="space-y-8">
+                  {/* Watch Statistics */}
+                  <WatchStats watchHistory={watchHistory} />
+
                   {/* Continue Watching Items */}
                   {continueWatchingItems.length > 0 && (
                     <div className="space-y-5 py-4">
@@ -169,12 +175,13 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                         <h2 className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                           Continue Watching
                         </h2>
+                        <span className="text-zinc-500 text-sm">({continueWatchingItems.length})</span>
                       </div>
                       <div className="relative group/row">
                         <div className="flex overflow-x-auto overflow-y-hidden scrollbar-hide px-16 pb-4 gap-5">
                           {continueWatchingItems.map((item: WatchHistoryItem) => (
                             <ContinueWatchingCard
-                              key={`${item.id}-${item.season || 0}-${item.episode || 0}`}
+                              key={`${item.id}-${item.season || 0}-${item.episode || 0}-${item.timestamp}`}
                               historyItem={item}
                               onClick={onViewDetails}
                               onPlay={onStartWatching}
@@ -190,46 +197,34 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                     </div>
                   )}
 
-                  {/* All Watch History */}
-                  <ScrollableRow
-                    title="All Watch History"
-                    items={watchHistory.map((item: WatchHistoryItem) => ({
-                      id: item.id,
-                      title: item.title,
-                      name: item.title,
-                      poster_path: item.poster,
-                      media_type: item.media_type,
-                      vote_average: item.vote_average,
-                      release_date: item.release_date,
-                      first_air_date: item.release_date,
-                    }))}
-                    onItemClick={(media: MediaItem) => {
-                      const item = watchHistory.find((h: WatchHistoryItem) => h.id === media.id);
-                      if (item) {
-                          onViewDetails({
-                          ...media,
-                          media_type: item.media_type,
-                        });
-                      }
-                    }}
-                    onPlayClick={(media: MediaItem) => {
-                      const item = watchHistory.find((h: WatchHistoryItem) => h.id === media.id);
-                      if (item) {
-                          onStartWatching({
-                          ...media,
-                          media_type: item.media_type,
-                        });
-                      }
-                    }}
-                    onRemoveItem={removeFromHistory}
-                    showRemoveButton={true}
-                    showBackButton={watchHistory.length > 0}
-                    onBackClick={() => setActiveTab('home')}
-                    bookmarks={bookmarks}
-                    watchHistory={watchHistory}
-                    toggleBookmark={toggleBookmark}
-                    currentSection="history"
-                  />
+                  {/* All Watch History with Enhanced Cards - Grid View with Scroll */}
+                  <div className="space-y-5 py-4">
+                    <div className="flex items-center justify-between px-8">
+                      <h2 className="font-bold text-2xl bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+                        All Watch History
+                      </h2>
+                      <p className="text-zinc-400 text-sm">
+                        {watchHistory.length} {watchHistory.length === 1 ? 'item' : 'items'}
+                      </p>
+                    </div>
+                    <div className="px-8">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 max-h-[800px] overflow-y-auto pr-4 pb-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
+                        {watchHistory.map((item: WatchHistoryItem) => (
+                          <HistoryCard
+                            key={`${item.id}-${item.season || 0}-${item.episode || 0}-${item.timestamp}`}
+                            historyItem={item}
+                            onClick={onViewDetails}
+                            onPlay={onStartWatching}
+                            onRemove={removeFromHistory}
+                            showRemove={true}
+                            bookmarks={bookmarks}
+                            toggleBookmark={toggleBookmark}
+                            episodeName={item.episodeName}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

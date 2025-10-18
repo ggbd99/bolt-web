@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, Film, X, Bookmark, BookmarkCheck, Clock } from 'lucide-react';
+import { Play, Film, X, Bookmark, BookmarkCheck, Clock, Tv } from 'lucide-react';
 import { MediaItem, BookmarkItem, WatchHistoryItem } from '../App';
 
 interface MediaCardProps {
@@ -181,6 +181,28 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             <Film className="w-12 h-12 text-zinc-600" />
           </div>
         )}
+        
+        {/* Media Type Badge - Bottom Right */}
+        <div className="absolute bottom-2 right-2 z-20">
+          <div className={`px-2 py-1 rounded-md text-xs font-semibold backdrop-blur-md flex items-center gap-1 ${
+            media.media_type === 'tv' || media.first_air_date
+              ? 'bg-purple-500/90 text-white' 
+              : 'bg-blue-500/90 text-white'
+          }`}>
+            {media.media_type === 'tv' || media.first_air_date ? (
+              <>
+                <Tv className="w-3 h-3" />
+                <span>TV</span>
+              </>
+            ) : (
+              <>
+                <Film className="w-3 h-3" />
+                <span>Movie</span>
+              </>
+            )}
+          </div>
+        </div>
+        
         {hasProgress && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800 z-30">
             <div

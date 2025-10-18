@@ -1,10 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, Clock, X, Bookmark, BookmarkCheck, Tv, Film } from 'lucide-react';
+import { Play, X, Bookmark, BookmarkCheck, Tv, Film, Clock, Calendar } from 'lucide-react';
 import { MediaItem, BookmarkItem, WatchHistoryItem } from '../App';
 import { formatTVProgress, getProgressPercent } from '../utils/watchHistory';
+import { formatRelativeTime } from '../utils/dateUtils';
 
-interface ContinueWatchingCardProps {
+interface HistoryCardProps {
   historyItem: WatchHistoryItem;
   onClick: (media: MediaItem) => void;
   onPlay: (media: MediaItem) => void;
@@ -12,10 +13,10 @@ interface ContinueWatchingCardProps {
   showRemove?: boolean;
   bookmarks: BookmarkItem[];
   toggleBookmark: (media: MediaItem) => void;
-  showContinueTag?: boolean;
+  episodeName?: string;
 }
 
-export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
+export const HistoryCard: React.FC<HistoryCardProps> = ({
   historyItem,
   onClick,
   onPlay,
@@ -23,10 +24,11 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
   showRemove = false,
   bookmarks,
   toggleBookmark,
-  showContinueTag = true
+  episodeName
 }) => {
   const progressPercent = getProgressPercent(historyItem);
   const progressText = formatTVProgress(historyItem);
+  const relativeTime = formatRelativeTime(historyItem.timestamp);
   
   const mediaItem: MediaItem = {
     id: historyItem.id,
@@ -42,19 +44,23 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
 
   const isBookmarked = bookmarks.some(b => b.id === historyItem.id);
 
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRemove) {
+      if (historyItem.media_type === 'tv') {
+        onRemove(historyItem.id, historyItem.season, historyItem.episode);
+      } else {
+        onRemove(historyItem.id);
+      }
+    }
+  };
+
   return (
     <div
-      className="cursor-pointer group flex-shrink-0 w-[150px] sm:w-[180px] md:w-[200px] transition-transform hover:scale-105 snap-start"
+      className="cursor-pointer group flex-shrink-0 w-full transition-transform hover:scale-105 snap-start"
       onClick={() => onClick(mediaItem)}
     >
-      <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 mb-2 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/40 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
-        {/* Continue Watching Tag */}
-        {showContinueTag && (
-          <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-2 py-1 rounded-md text-xs font-semibold flex items-center gap-1 shadow-lg">
-            <Clock className="w-3 h-3" />
-            Continue
-          </div>
-        )}
+      <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 mb-3 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/40 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
         
         {/* Action Buttons */}
         <div className="absolute top-2 right-2 z-20 flex gap-2">
@@ -62,32 +68,25 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              className="bg-black/60 hover:bg-red-500/90 backdrop-blur-sm text-white hover:scale-110 transition-all rounded-lg border border-white/20 hover:border-red-400"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (historyItem.media_type === 'tv') {
-                  onRemove(historyItem.id, historyItem.season, historyItem.episode);
-                } else {
-                  onRemove(historyItem.id);
-                }
-              }}
+              className="bg-black/70 hover:bg-red-500/90 backdrop-blur-sm text-white hover:scale-110 transition-all rounded-lg border border-white/20 hover:border-red-400 w-8 h-8"
+              onClick={handleRemove}
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </Button>
           )}
           <Button
             variant="ghost"
             size="icon"
-            className="bg-black/60 hover:bg-cyan-500/90 backdrop-blur-sm text-white hover:scale-110 transition-all rounded-lg border border-white/20 hover:border-cyan-400"
+            className="bg-black/70 hover:bg-cyan-500/90 backdrop-blur-sm text-white hover:scale-110 transition-all rounded-lg border border-white/20 hover:border-cyan-400 w-8 h-8"
             onClick={(e) => {
               e.stopPropagation();
               toggleBookmark(mediaItem);
             }}
           >
             {isBookmarked ? (
-              <BookmarkCheck className="w-5 h-5 text-white fill-white" />
+              <BookmarkCheck className="w-4 h-4 text-white fill-white" />
             ) : (
-              <Bookmark className="w-5 h-5" />
+              <Bookmark className="w-4 h-4" />
             )}
           </Button>
         </div>
@@ -132,7 +131,7 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
             {historyItem.media_type === 'tv' ? (
               <>
                 <Tv className="w-3 h-3" />
-                <span>TV</span>
+                <span>TV Show</span>
               </>
             ) : (
               <>
@@ -144,33 +143,49 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
         </div>
 
         {/* Progress Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800 z-30">
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-zinc-800 z-30">
           <div
-            className="h-full bg-gradient-to-r from-cyan-500 to-blue-600"
+            className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
-      {/* Title and Progress Info */}
-      <div className="space-y-1">
+      {/* Title and Info */}
+      <div className="space-y-1.5">
         <h3 className="font-semibold text-white truncate text-sm group-hover:text-cyan-400 transition-colors">
           {historyItem.title}
         </h3>
-        <div className="flex items-center gap-2 text-zinc-400 text-xs">
-          <div className="flex items-center gap-1">
-            {historyItem.media_type === 'tv' ? (
-              <Tv className="w-3 h-3" />
-            ) : (
-              <Film className="w-3 h-3" />
-            )}
-            <span>{progressText}</span>
+        
+        {/* Progress Information */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
+            <Clock className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">{progressText}</span>
+          </div>
+          
+          {/* Episode Name for TV Shows */}
+          {historyItem.media_type === 'tv' && episodeName && (
+            <div className="text-zinc-500 text-xs truncate">
+              {episodeName}
+            </div>
+          )}
+          
+          {/* Last Watched Time */}
+          <div className="flex items-center gap-1.5 text-zinc-500 text-xs">
+            <Calendar className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">{relativeTime}</span>
           </div>
         </div>
+        
+        {/* Rating and Year */}
         <div className="flex items-center gap-2 text-zinc-500 text-xs">
-          <span>{historyItem.vote_average?.toFixed(1)}/10</span>
+          <span>⭐ {historyItem.vote_average?.toFixed(1)}</span>
           {historyItem.release_date && (
-            <span>{historyItem.release_date.split('-')[0]}</span>
+            <>
+              <span>•</span>
+              <span>{historyItem.release_date.split('-')[0]}</span>
+            </>
           )}
         </div>
       </div>

@@ -75,6 +75,7 @@ export type WatchHistoryItem = {
   timestamp: number;
   season?: number;
   episode?: number;
+  episodeName?: string;
   vote_average: number;
   release_date: string;
 };
@@ -443,8 +444,16 @@ const App: React.FC = () => {
     }
   };
 
-  const removeFromHistory = React.useCallback((itemId: number) => {
-    setWatchHistory(prev => prev.filter(item => item.id !== itemId));
+  const removeFromHistory = React.useCallback((itemId: number, season?: number, episode?: number) => {
+    setWatchHistory(prev => {
+      // For TV shows, remove specific episode; for movies, remove all instances
+      if (season !== undefined && episode !== undefined) {
+        return prev.filter(item => 
+          !(item.id === itemId && item.season === season && item.episode === episode)
+        );
+      }
+      return prev.filter(item => item.id !== itemId);
+    });
     showToast('Removed from watch history', 'info');
   }, [showToast]);
 
