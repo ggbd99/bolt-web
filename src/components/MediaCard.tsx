@@ -1,12 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, Film, X, Bookmark, BookmarkCheck, Clock, Tv } from 'lucide-react';
+import { Film, X, Bookmark, BookmarkCheck, Clock, Tv } from 'lucide-react';
 import { MediaItem, BookmarkItem, WatchHistoryItem } from '../App';
 
 interface MediaCardProps {
   media: MediaItem;
   onClick: (media: MediaItem) => void;
-  onPlay: (media: MediaItem) => void;
   onRemove?: (id: number) => void;
   showRemove?: boolean;
   bookmarks: BookmarkItem[];
@@ -15,18 +14,16 @@ interface MediaCardProps {
   currentSection?: string;
 }
 
-export const MediaCard: React.FC<MediaCardProps> = ({ 
-  media, 
-  onClick, 
-  onPlay, 
-  onRemove, 
-  showRemove = false, 
-  bookmarks, 
-  watchHistory, 
+export const MediaCard: React.FC<MediaCardProps> = ({
+  media,
+  onClick,
+  onRemove,
+  showRemove = false,
+  bookmarks,
+  watchHistory,
   toggleBookmark,
   currentSection = 'home'
-}) => {
-  const isTopTen = media.topTenNumber !== undefined;
+}) => {  const isTopTen = media.topTenNumber !== undefined;
   const historyItem = watchHistory.find((item: WatchHistoryItem) => {
     if (media.media_type === 'tv' || media.first_air_date) {
       return item.id === media.id && item.media_type === 'tv';

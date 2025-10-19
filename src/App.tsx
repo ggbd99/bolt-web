@@ -552,6 +552,12 @@ const App: React.FC = () => {
         isSearching={isSearching}
         onSearchChange={handleSearch}
         onNavigate={setActiveTab}
+        searchResults={searchResults}
+        onViewDetails={handleViewDetails}
+        onStartWatching={startWatching}
+        bookmarks={bookmarks}
+        watchHistory={watchHistory}
+        toggleBookmark={toggleBookmark}
       />
       <BrowseView
         activeTab={activeTab}
@@ -560,7 +566,6 @@ const App: React.FC = () => {
         popularTV={popularTV}
         watchHistory={watchHistory}
         bookmarks={bookmarks}
-        searchResults={searchResults}
         heroIndex={heroIndex}
         heroTransition={heroTransition}
         heroDetails={heroDetails}
@@ -571,6 +576,7 @@ const App: React.FC = () => {
         removeFromHistory={removeFromHistory}
         setActiveTab={setActiveTab}
       />
+      
     </div>
   );
 };

@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Clock, Bookmark, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { MediaItem, BookmarkItem, WatchHistoryItem } from '@/App';
+import { SearchResults } from '@/components/search/SearchResults';
 
 interface HeaderProps {
   searchQuery: string;
   isSearching: boolean;
   onSearchChange: (query: string) => void;
   onNavigate: (tab: string) => void;
+  searchResults: MediaItem[];
+  onViewDetails: (media: MediaItem) => void;
+  onStartWatching: (media: MediaItem) => void;
+  bookmarks: BookmarkItem[];
+  watchHistory: WatchHistoryItem[];
+  toggleBookmark: (media: MediaItem) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,8 +23,15 @@ export const Header: React.FC<HeaderProps> = ({
   isSearching,
   onSearchChange,
   onNavigate,
+  searchResults,
+  onViewDetails,
+  onStartWatching,
+  bookmarks,
+  watchHistory,
+  toggleBookmark,
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null); // Ref for the search area
 
   const handleClearSearch = () => {
     onSearchChange('');
@@ -25,6 +40,23 @@ export const Header: React.FC<HeaderProps> = ({
   const handleSearchIconClick = () => {
     setIsSearchOpen(true);
   };
+
+  // Effect to handle clicks outside the search area
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        if (isSearchOpen) {
+          setIsSearchOpen(false);
+          onSearchChange(''); // Clear search query when closing
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchOpen, onSearchChange]); // Re-run effect if isSearchOpen or onSearchChange changes
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-black/90 via-black/60 to-transparent backdrop-blur-sm">
@@ -37,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
             VidKing
           </h1>
           
-          <div className="flex-1 max-w-2xl">
+          <div className="flex-1 max-w-2xl relative" ref={searchRef}> {/* Attach ref here */}
             {isSearchOpen ? (
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-400" />
@@ -47,11 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
                   autoFocus
-                  onBlur={() => {
-                    if (!searchQuery) {
-                      setIsSearchOpen(false);
-                    }
-                  }}
+                  // Removed onBlur as it conflicts with click outside logic
                 />
                 {searchQuery && (
                   <button
@@ -63,6 +91,16 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
                 {isSearching && !searchQuery && (
                   <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-400 animate-spin" />
+                )}
+                {searchQuery && searchResults.length > 0 && (
+                  <SearchResults
+                    searchResults={searchResults}
+                    onViewDetails={onViewDetails}
+                    onStartWatching={onStartWatching}
+                    bookmarks={bookmarks}
+                    watchHistory={watchHistory}
+                    toggleBookmark={toggleBookmark}
+                  />
                 )}
               </div>
             ) : (

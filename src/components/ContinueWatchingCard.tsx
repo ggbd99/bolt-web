@@ -6,7 +6,7 @@ import { formatTVProgress, getProgressPercent } from '../utils/watchHistory';
 
 interface ContinueWatchingCardProps {
   historyItem: WatchHistoryItem;
-  onClick: (media: MediaItem) => void;
+
   onPlay: (media: MediaItem) => void;
   onRemove?: (id: number, season?: number, episode?: number) => void;
   showRemove?: boolean;
@@ -17,7 +17,7 @@ interface ContinueWatchingCardProps {
 
 export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
   historyItem,
-  onClick,
+
   onPlay,
   onRemove,
   showRemove = false,

@@ -301,9 +301,7 @@ export const WatchView: React.FC<WatchViewProps> = ({
                           <div
                             key={similar.id}
                             className="cursor-pointer group"
-                            onClick={() => {
-                                onViewDetails(similar)
-                            }}
+                            onClick={() => onViewDetails(similar)}
                           >
                             <div className="aspect-[2/3] rounded-md overflow-hidden bg-zinc-800 relative">
                               {similar.poster_path ? (
@@ -319,8 +317,7 @@ export const WatchView: React.FC<WatchViewProps> = ({
                               )}
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                 <div className="transform group-hover:scale-100 transition-transform duration-300">
-                                  <Play className="w-16 h-16 text-white drop-shadow-lg" fill="currentColor" />
-                                </div>
+                                                                        <Play className="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" />                                </div>
                               </div>
                             </div>
                             <p className="text-xs mt-2 truncate text-zinc-400">{similar.title || similar.name}</p>
@@ -382,7 +379,7 @@ export const WatchView: React.FC<WatchViewProps> = ({
                                 {episode.episode_number === currentEpisode && (
                                   <div className="absolute inset-0 flex items-center justify-center bg-black/60">
                                     <div className="transform group-hover:scale-100 transition-transform duration-300">
-                                      <Play className="w-16 h-16 text-white drop-shadow-lg" fill="currentColor" />
+                                      <Play className="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" />
                                     </div>
                                   </div>
                                 )}

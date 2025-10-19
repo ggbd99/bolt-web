@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,6 +30,10 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
   toggleBookmark,
 }) => {
   const isBookmarked = bookmarks.some((b) => b.id === selectedMedia.id);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedMedia.id]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-950 to-zinc-950 text-white animate-in fade-in duration-500">
@@ -138,11 +142,7 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
                         alt={item.title || item.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
-                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                <div className="transform group-hover:scale-100 transition-transform duration-300">
-                                  <Play className="w-16 h-16 text-white drop-shadow-lg" fill="currentColor" />
-                                </div>
-                              </div>
+
                     </div>
                     <p className="text-sm mt-2 truncate">{item.title || item.name}</p>
                   </div>

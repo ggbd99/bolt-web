@@ -8,7 +8,7 @@ interface ScrollableRowProps {
   title: string;
   items: MediaItem[];
   onItemClick: (item: MediaItem) => void;
-  onPlayClick?: (item: MediaItem) => void;
+
   isTopTen?: boolean;
   onRemoveItem?: (id: number) => void;
   showRemoveButton?: boolean;
@@ -24,7 +24,6 @@ export const ScrollableRow: React.FC<ScrollableRowProps> = React.memo(({
   title, 
   items, 
   onItemClick, 
-  onPlayClick, 
   isTopTen = false, 
   onRemoveItem, 
   showRemoveButton = false, 
@@ -87,7 +86,6 @@ export const ScrollableRow: React.FC<ScrollableRowProps> = React.memo(({
               key={item.id} 
               media={item} 
               onClick={onItemClick} 
-              onPlay={onPlayClick || onItemClick} 
               onRemove={onRemoveItem} 
               showRemove={showRemoveButton} 
               bookmarks={bookmarks} 
