@@ -45,12 +45,12 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
   return (
     <div
       className="cursor-pointer group flex-shrink-0 w-[150px] sm:w-[180px] md:w-[200px] transition-transform hover:scale-105 snap-start"
-      onClick={() => onClick(mediaItem)}
+      onClick={() => onPlay(mediaItem)}
     >
-      <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 mb-2 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/40 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
-        {/* Continue Watching Tag */}
+      <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-900 mb-2 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/30 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
+        {/* Continue Watching Tag - Top */}
         {showContinueTag && (
-          <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-2 py-1 rounded-md text-xs font-semibold flex items-center gap-1 shadow-lg">
+          <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 shadow-lg">
             <Clock className="w-3 h-3" />
             Continue
           </div>
@@ -122,9 +122,9 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
           </div>
         )}
 
-        {/* Media Type Badge - Bottom Right */}
-        <div className="absolute bottom-2 right-2 z-20">
-          <div className={`px-2 py-1 rounded-md text-xs font-semibold backdrop-blur-md flex items-center gap-1 ${
+        {/* Media Type Badge - Bottom */}
+        <div className="absolute bottom-2 left-2 z-20">
+          <div className={`px-2.5 py-1 rounded-md text-xs font-semibold backdrop-blur-md flex items-center gap-1 ${
             historyItem.media_type === 'tv' 
               ? 'bg-purple-500/90 text-white' 
               : 'bg-blue-500/90 text-white'
@@ -157,7 +157,7 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
         <h3 className="font-semibold text-white truncate text-sm group-hover:text-cyan-400 transition-colors">
           {historyItem.title}
         </h3>
-        <div className="flex items-center gap-2 text-zinc-400 text-xs">
+        <div className="flex items-center gap-2 text-zinc-400 text-xs font-medium">
           <div className="flex items-center gap-1">
             {historyItem.media_type === 'tv' ? (
               <Tv className="w-3 h-3" />
@@ -167,7 +167,7 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
             <span>{progressText}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-zinc-500 text-xs">
+        <div className="flex items-center gap-2 text-zinc-400 text-xs font-medium">
           <span>{historyItem.vote_average?.toFixed(1)}/10</span>
           {historyItem.release_date && (
             <span>{historyItem.release_date.split('-')[0]}</span>

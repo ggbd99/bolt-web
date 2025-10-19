@@ -79,7 +79,7 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
             </div>
           ) : activeTab === 'home' ? (
             <div className="py-12 space-y-12">
-              {/* Continue Watching Section - Always show if there are items */}
+              {/* Continue Watching Section */}
               {continueWatchingItems.length > 0 && (
                 <div className="space-y-5 py-4">
                   <div className="flex items-center px-8 gap-3">
@@ -160,7 +160,7 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
               {watchHistory.length === 0 ? (
                 <div className="text-center py-20">
                   <Clock className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-                  <p className="text-zinc-400 text-lg">No watch history yet</p>
+                  <p className="text-zinc-400 text-base font-medium">No watch history yet</p>
                   <p className="text-zinc-500 text-sm mt-2">Start watching something to see your history here</p>
                 </div>
               ) : (
@@ -175,7 +175,7 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                         <h2 className="font-bold text-2xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                           Continue Watching
                         </h2>
-                        <span className="text-zinc-500 text-sm">({continueWatchingItems.length})</span>
+                        <span className="text-zinc-400 text-sm font-medium">({continueWatchingItems.length})</span>
                       </div>
                       <div className="relative group/row">
                         <div className="flex overflow-x-auto overflow-y-hidden scrollbar-hide px-16 pb-4 gap-5">
@@ -197,13 +197,13 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                     </div>
                   )}
 
-                  {/* All Watch History with Enhanced Cards - Grid View with Scroll */}
+                  {/* All Watch History */}
                   <div className="space-y-5 py-4">
                     <div className="flex items-center justify-between px-8">
                       <h2 className="font-bold text-2xl bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
                         All Watch History
                       </h2>
-                      <p className="text-zinc-400 text-sm">
+                      <p className="text-zinc-400 text-sm font-medium">
                         {watchHistory.length} {watchHistory.length === 1 ? 'item' : 'items'}
                       </p>
                     </div>
@@ -233,7 +233,7 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
               {bookmarks.length === 0 ? (
                 <div className="text-center py-20">
                   <Bookmark className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-                  <p className="text-zinc-400 text-lg">Your list is empty</p>
+                  <p className="text-zinc-400 text-base font-medium">Your list is empty</p>
                 </div>
               ) : (
                 <ScrollableRow
