@@ -55,6 +55,16 @@ export type MediaItem = {
   still_path?: string;
   topTenNumber?: number;
   seasons?: Season[];
+  videos?: {
+    results: Array<{
+      id: string;
+      key: string;
+      name: string;
+      site: string;
+      type: string;
+      official: boolean;
+    }>;
+  };
 };
 
 type CastMember = {
@@ -358,7 +368,7 @@ const App: React.FC = () => {
 
     try {
       const type = media.media_type || (media.first_air_date ? 'tv' : 'movie');
-      const res = await fetch(`/api/tmdb/${type}/${media.id}?append_to_response=credits,similar,images&include_image_language=en,null`);
+      const res = await fetch(`/api/tmdb/${type}/${media.id}?append_to_response=credits,similar,images,videos&include_image_language=en,null`);
       if (!res.ok) throw new Error('Failed to fetch content details');
       const fullDetails: MediaItem = await res.json();
       fullDetails.media_type = type;
@@ -379,7 +389,7 @@ const App: React.FC = () => {
     
     try {
       const type = media.media_type || (media.first_air_date ? 'tv' : 'movie');
-      const res = await fetch(`/api/tmdb/${type}/${media.id}?append_to_response=credits,similar,images&include_image_language=en,null`);
+      const res = await fetch(`/api/tmdb/${type}/${media.id}?append_to_response=credits,similar,images,videos&include_image_language=en,null`);
       if (!res.ok) throw new Error('Failed to fetch content details');
       const fullDetails: MediaItem = await res.json();
       fullDetails.media_type = type;

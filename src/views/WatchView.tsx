@@ -69,7 +69,7 @@ export const WatchView: React.FC<WatchViewProps> = ({
   const [retryCount, setRetryCount] = useState<number>(0);
 
   // Memoize the player URL to prevent infinite re-renders
-  const playerUrl = React.useMemo(() => getPlayerUrl(), [playerKey, getPlayerUrl]);
+  const playerUrl = React.useMemo(() => getPlayerUrl(), [playerKey]);
 
   // Reset error state when player URL changes
   useEffect(() => {
@@ -342,7 +342,7 @@ export const WatchView: React.FC<WatchViewProps> = ({
                         onValueChange={(v) => changeSeason(parseInt(v))}
                       >
                         <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                          <SelectValue />
+                          <span>Season {currentSeason}</span>
                         </SelectTrigger>
                         <SelectContent>
                           {seasons

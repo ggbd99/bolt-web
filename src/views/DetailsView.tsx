@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Play, Star, Bookmark, BookmarkCheck } from 'lucide-react';
+import { ArrowLeft, Play, Star, Bookmark, BookmarkCheck, Film } from 'lucide-react';
 import { MediaItem, BookmarkItem } from '@/App';
+import { TrailerPlayer } from '@/components/TrailerPlayer';
 
 type CastMember = {
     id: number;
@@ -30,6 +31,14 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
   toggleBookmark,
 }) => {
   const isBookmarked = bookmarks.some((b) => b.id === selectedMedia.id);
+  const [showTrailer, setShowTrailer] = useState(false);
+
+  // Get the official trailer
+  const trailer = selectedMedia.videos?.results?.find(
+    (video) => video.type === 'Trailer' && video.site === 'YouTube' && video.official
+  ) || selectedMedia.videos?.results?.find(
+    (video) => video.type === 'Trailer' && video.site === 'YouTube'
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -81,11 +90,22 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
               ))}
             </div>
             <p className="text-zinc-300 leading-relaxed max-w-3xl">{selectedMedia.overview}</p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <Button size="lg" onClick={() => onPlay(selectedMedia)} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-10 py-7 text-lg rounded-xl shadow-2xl shadow-cyan-500/50 transition-all hover:scale-105 hover:shadow-cyan-500/70 border border-cyan-400/30">
                 <Play className="w-6 h-6 mr-2" fill="currentColor" />
                 Play
               </Button>
+              {trailer && (
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  onClick={() => setShowTrailer(true)}
+                  className="border-2 border-zinc-500 bg-zinc-900/80 backdrop-blur-md hover:bg-zinc-800/90 hover:border-purple-400 hover:text-purple-400 text-white font-bold px-10 py-7 text-lg rounded-xl shadow-2xl transition-all hover:scale-105"
+                >
+                  <Film className="w-6 h-6 mr-2" />
+                  Watch Trailer
+                </Button>
+              )}
               <Button size="lg" variant="outline" onClick={() => toggleBookmark(selectedMedia)} className="border-2 border-zinc-500 bg-zinc-900/80 backdrop-blur-md hover:bg-zinc-800/90 hover:border-cyan-400 hover:text-cyan-400 text-white font-bold px-10 py-7 text-lg rounded-xl shadow-2xl transition-all hover:scale-105">
                 {isBookmarked ? (
                   <BookmarkCheck className="w-6 h-6 mr-2" />
@@ -152,6 +172,14 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
           )}
         </div>
       </div>
+
+      {showTrailer && trailer && (
+        <TrailerPlayer
+          videoKey={trailer.key}
+          title={trailer.name}
+          onClose={() => setShowTrailer(false)}
+        />
+      )}
     </div>
   );
 };

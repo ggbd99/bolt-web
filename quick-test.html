@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Player Test</title>
+    <style>
+        body { margin: 0; background: #000; }
+        iframe { width: 100vw; height: 100vh; border: none; }
+        .info { 
+            position: fixed; top: 10px; left: 10px; 
+            background: rgba(0,0,0,0.8); color: #fff; 
+            padding: 10px; border-radius: 5px; z-index: 9999;
+            font-family: monospace; font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <div>Testing Movie ID: <span id="movie-id"></span></div>
+        <div>Status: <span id="status">Loading...</span></div>
+        <div style="margin-top: 10px;">
+            <button onclick="testMovie('299534')">Test Avengers</button>
+            <button onclick="testMovie('550')">Test Fight Club</button>
+            <button onclick="testMovie('1078605')">Test Deadpool</button>
+            <button onclick="testMovie('1156594')">Test Our Fault</button>
+        </div>
+    </div>
+    
+    <iframe id="player" src="about:blank"></iframe>
+    
+    <script>
+        function testMovie(id) {
+            document.getElementById('movie-id').textContent = id;
+            document.getElementById('status').textContent = 'Loading...';
+            document.getElementById('player').src = `https://www.vidking.net/embed/movie/${id}?color=6366f1`;
+        }
+        
+        // Listen for errors
+        window.addEventListener('error', (e) => {
+            console.error('Error:', e);
+            document.getElementById('status').textContent = 'Error detected (check console)';
+        });
+        
+        window.addEventListener('message', (e) => {
+            try {
+                if (typeof e.data === 'string') {
+                    const data = JSON.parse(e.data);
+                    if (data.type === 'PLAYER_EVENT') {
+                        document.getElementById('status').textContent = `Playing: ${data.data.event}`;
+                    }
+                }
+            } catch {}
+        });
+        
+        // Start with a known working movie
+        testMovie('299534');
+    </script>
+</body>
+</html>
