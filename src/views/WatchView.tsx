@@ -69,7 +69,7 @@ export const WatchView: React.FC<WatchViewProps> = ({
   const [retryCount, setRetryCount] = useState<number>(0);
 
   // Memoize the player URL to prevent infinite re-renders
-  const playerUrl = React.useMemo(() => getPlayerUrl(), [playerKey]);
+  const playerUrl = React.useMemo(() => getPlayerUrl(), [playerKey, getPlayerUrl]);
 
   // Reset error state when player URL changes
   useEffect(() => {

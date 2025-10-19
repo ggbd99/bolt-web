@@ -554,7 +554,6 @@ const App: React.FC = () => {
         onNavigate={setActiveTab}
         searchResults={searchResults}
         onViewDetails={handleViewDetails}
-        onStartWatching={startWatching}
         bookmarks={bookmarks}
         watchHistory={watchHistory}
         toggleBookmark={toggleBookmark}

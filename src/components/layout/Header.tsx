@@ -12,7 +12,6 @@ interface HeaderProps {
   onNavigate: (tab: string) => void;
   searchResults: MediaItem[];
   onViewDetails: (media: MediaItem) => void;
-  onStartWatching: (media: MediaItem) => void;
   bookmarks: BookmarkItem[];
   watchHistory: WatchHistoryItem[];
   toggleBookmark: (media: MediaItem) => void;
@@ -25,7 +24,6 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigate,
   searchResults,
   onViewDetails,
-  onStartWatching,
   bookmarks,
   watchHistory,
   toggleBookmark,
@@ -96,7 +94,6 @@ export const Header: React.FC<HeaderProps> = ({
                   <SearchResults
                     searchResults={searchResults}
                     onViewDetails={onViewDetails}
-                    onStartWatching={onStartWatching}
                     bookmarks={bookmarks}
                     watchHistory={watchHistory}
                     toggleBookmark={toggleBookmark}

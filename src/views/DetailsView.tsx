@@ -38,7 +38,7 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-950 to-zinc-950 text-white animate-in fade-in duration-500">
       <div
-        className="absolute top-0 left-0 w-full h-[60vh] bg-cover bg-center"
+        className="absolute top-0 left-0 w-full h-[80vh] bg-cover bg-center"
         style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${selectedMedia.backdrop_path})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
@@ -49,8 +49,8 @@ export const DetailsView: React.FC<DetailsViewProps> = ({
           <ArrowLeft className="w-6 h-6" />
         </Button>
 
-        <div className="pt-[40vh] md:pt-[30vh] grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-1">
+        <div className="pt-[30vh] md:pt-[20vh] grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-1 max-w-xs mx-auto">
             <img
               src={`https://image.tmdb.org/t/p/w500${selectedMedia.poster_path}`}
               alt={selectedMedia.title || selectedMedia.name}

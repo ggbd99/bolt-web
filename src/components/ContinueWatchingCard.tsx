@@ -8,6 +8,7 @@ interface ContinueWatchingCardProps {
   historyItem: WatchHistoryItem;
 
   onPlay: (media: MediaItem) => void;
+  onClick: (media: MediaItem) => void;
   onRemove?: (id: number, season?: number, episode?: number) => void;
   showRemove?: boolean;
   bookmarks: BookmarkItem[];
@@ -17,7 +18,7 @@ interface ContinueWatchingCardProps {
 
 export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
   historyItem,
-
+  onClick,
   onPlay,
   onRemove,
   showRemove = false,
@@ -45,7 +46,7 @@ export const ContinueWatchingCard: React.FC<ContinueWatchingCardProps> = ({
   return (
     <div
       className="cursor-pointer group flex-shrink-0 w-[150px] sm:w-[180px] md:w-[200px] transition-transform hover:scale-105 snap-start"
-      onClick={() => onPlay(mediaItem)}
+      onClick={() => onClick(mediaItem)}
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-900 mb-2 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/30 transition-all duration-300 border border-zinc-800 group-hover:border-cyan-500/50">
         {/* Continue Watching Tag - Top */}

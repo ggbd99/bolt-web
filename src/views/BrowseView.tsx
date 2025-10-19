@@ -24,7 +24,7 @@ interface BrowseViewProps {
   onViewDetails: (media: MediaItem) => void;
   toggleBookmark: (media: MediaItem) => void;
   removeFromHistory: (id: number, season?: number, episode?: number) => void;
-
+  setActiveTab: (tab: string) => void;
 }
 
 export const BrowseView: React.FC<BrowseViewProps> = ({
@@ -114,7 +114,6 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                   title="Popular Movies"
                   items={popularMovies}
                   onItemClick={onViewDetails}
-                  onPlayClick={onViewDetails}
                   bookmarks={bookmarks}
                   watchHistory={watchHistory}
                   toggleBookmark={toggleBookmark}
@@ -126,7 +125,6 @@ export const BrowseView: React.FC<BrowseViewProps> = ({
                   title="Popular TV Shows"
                   items={popularTV}
                   onItemClick={onViewDetails}
-                  onPlayClick={onViewDetails}
                   bookmarks={bookmarks}
                   watchHistory={watchHistory}
                   toggleBookmark={toggleBookmark}
